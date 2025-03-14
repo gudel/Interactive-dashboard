@@ -51,3 +51,90 @@ problem:
 fix: 
 - Retrace steps, make sure the files are synced with the one mentioned in the tutorial.
 - ctrl+z is your friend. Don't be shy to use it.
+
+4. On card data. Where I need to fetch a string of array. I fell into another pitfall of redundant const declaration.
+
+problem: 
+Need to call specific values from a return.
+
+What I did:
+```export default async function Page() {
+  const revenue = await fetchRevenue();
+  const latestInvoices = await fetchLatestInvoices(); 
+  const totalPaidInvoices = await fetchCardData();          
+  const totalPendingInvoices = await fetchCardData();       /* pitfall: redundant, wrong way to call multiple stuff from fetchCardData
+  const numberOfInvoices = await fetchCardData();          
+  return (
+    <main>
+      <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+        Dashboard
+      </h1>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        { <Card title="Collected" value={totalPaidInvoices} type="collected" /> }   /* need to call this
+        { <Card title="Pending" value={totalPendingInvoices} type="pending" /> }    /* need to call this
+        { <Card title="Total Invoices" value={numberOfInvoices} type="invoices" /> }    /* need to call this
+        { <Card
+          title="Total Customers"
+          value={numberOfCustomers}
+          type="customers"
+        /> }```
+
+What I did was basically pushing myself to a giving up state and ends up just opening the solution to gain insight.
+
+Fix: Call it as an array.
+
+Since the declaration in /lib/data.tsx
+is formed like this:
+```
+export async function fetchCardData() {
+  try {
+    // You can probably combine these into a single SQL query
+    // However, we are intentionally splitting them to demonstrate
+    // how to initialize multiple queries in parallel with JS.
+    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
+    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
+    const invoiceStatusPromise = sql`SELECT
+         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
+         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
+         FROM invoices`;
+
+    const data = await Promise.all([
+      invoiceCountPromise,
+      customerCountPromise,
+      invoiceStatusPromise,
+    ]);
+
+    const numberOfInvoices = Number(data[0][0].count ?? '0');
+    const numberOfCustomers = Number(data[1][0].count ?? '0');
+    const totalPaidInvoices = formatCurrency(data[2][0].paid ?? '0');
+    const totalPendingInvoices = formatCurrency(data[2][0].pending ?? '0');
+
+    return {
+      numberOfCustomers,
+      numberOfInvoices,                             /* <-This is an array as a return
+      totalPaidInvoices,
+      totalPendingInvoices,
+    };
+```
+Calling the functions as an array like so:
+```
+import {
+  fetchRevenue,
+  fetchLatestInvoices,
+  fetchCardData,
+} from '@/app/lib/data';
+ 
+export default async function Page() {
+  const revenue = await fetchRevenue();
+  const latestInvoices = await fetchLatestInvoices();
+  const {
+    numberOfInvoices,
+    numberOfCustomers,
+    totalPaidInvoices,
+    totalPendingInvoices,
+  } = await fetchCardData();
+ 
+```
+Fixed the issue.
+
+Key takeaway. See the SQL return in the code and call the whole array instead of destructuring it. Each array is to be treated as 1 destucture.
