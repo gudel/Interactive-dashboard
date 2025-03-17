@@ -77,7 +77,8 @@ What I did:
           title="Total Customers"
           value={numberOfCustomers}
           type="customers"
-        /> }```
+        /> }
+```
 
 What I did was basically pushing myself to a giving up state and ends up just opening the solution to gain insight.
 
@@ -85,6 +86,7 @@ Fix: Call it as an array.
 
 Since the declaration in /lib/data.tsx
 is formed like this:
+
 ```
 export async function fetchCardData() {
   try {
@@ -117,6 +119,7 @@ export async function fetchCardData() {
     };
 ```
 Calling the functions as an array like so:
+
 ```
 import {
   fetchRevenue,
@@ -133,7 +136,6 @@ export default async function Page() {
     totalPaidInvoices,
     totalPendingInvoices,
   } = await fetchCardData();
- 
 ```
 Fixed the issue.
 
