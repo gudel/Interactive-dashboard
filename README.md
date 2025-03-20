@@ -140,3 +140,28 @@ export default async function Page() {
 Fixed the issue.
 
 Key takeaway. See the SQL return in the code and call the whole array instead of destructuring it. Each array is to be treated as 1 destucture.
+
+5. Major bug on customer display data.
+Problem:
+The app only displays one customer in Latest Invoices and Invoices page.
+The issue starts to become an actual issue once invoices page is integrated and I started to notice that it displays the same customer with the same date. Which is a major red flag.
+
+Debugging steps:
+- Checked local render logic.
+- Checked local placeholder database.
+- Checked local database fetching logic.
+- Cross checked with SQL console in Neon posgresql.
+- Noticed that there are duplicates in the 'invoices' table.
+- Identified duplicates with different id.
+
+Fix:
+1. Purged placeholder database and restarted it by running `TRUNCATE TABLE invoices, customers, users, revenue RESTART IDENTITY CASCADE;` in SQL console.
+2. Deploying seed command once.
+
+Probable cause:
+A mistake in seeding during earlier iteration. Likely caused with pre-fetching problem when running `/seed`.
+
+Key takeaway: 
+- Check database tables when fetch command behaves unexpectedly
+- Always verify database tables when fetch results seem off.
+- Verify thrice, just to make sure.
