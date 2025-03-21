@@ -2,22 +2,24 @@
 
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { useDebouncedCallback } from 'use-debounce';
 
 export default function Search({ placeholder }: { placeholder: string }) {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const {replace} = useRouter();
+  const pathname = usePathname();
 
-  function handleSearch (term: string){
+  const handleSearch = useDebouncedCallback((term) => { /* Changed from function to const as the DebouncedCallback function  wraps the handleSearch function. */
     const params = new URLSearchParams (searchParams);  ///URLSearchParams is a Web API that provides utility methods for manipulating the URL query parameters. Instead of creating a complex string literal, you can use it to get the params string like ?page=1&query=a.
+    params.set('page', '1')
     if (term) {
       params.set('query', term);
     } else {
       params.delete('query');
     }
-    replace(`${pathname}?${params.toString()}`); /// replaces the current url and updates it dynamically based on user search query.
-    console.log(term);
-  }
+    replace(`${pathname}?${params.toString()}`); /// replaces the current url and updates it dynamically based on user search query.  
+  }, 300);   /// only run the code 300 ms after latest input
+  
   return (
     <div className="relative flex flex-1 flex-shrink-0">
       <label htmlFor="search" className="sr-only">

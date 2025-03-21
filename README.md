@@ -11,6 +11,9 @@ For more information, see the [course curriculum](https://nextjs.org/learn) on t
 2. run development server locally
 ```pnpm dev```
 
+# Checking out the deployed SPA
+Use `/dashboard` to access the dashboard, I have yet to implement Auth at the moment.
+
 # Repository structure
 
 This repository functions as both a standalone main repo and a Git submodule for broader project integration and tracking.
@@ -28,7 +31,8 @@ It would seem that it assumes everything will run fine on the learner's end. Whi
 
 # Debug log
 
-1. Following the tutorial blindly resulted in a failed deployment on Vercel. After some deep issue tracking, particularly in [this discussion](https://github.com/vercel/next.js/discussions/76822) and [this stack overflow thread](https://stackoverflow.com/questions/76710159/error-while-deploying-nextjs-app-to-vercel), it turns out the issue stemmed from a dependency conflict.
+### 1. Following the tutorial blindly resulted in a failed deployment on Vercel.
+After some deep issue tracking, particularly in [this discussion](https://github.com/vercel/next.js/discussions/76822) and [this stack overflow thread](https://stackoverflow.com/questions/76710159/error-while-deploying-nextjs-app-to-vercel), it turns out the issue stemmed from a dependency conflict.
 
 Fix:
 - Switched from bcrypt to bcryptjs
@@ -36,10 +40,10 @@ Fix:
 
 This resolved the issue and allowed for a successful deployment.
 
-2. Database seeding sometimes requires repeat action. If the first seeding produces an error, try it again, two more times, to make sure it's not random error. This will save time. 
+### 2. Database seeding sometimes requires repeat action. If the first seeding produces an error, try it again, two more times, to make sure it's not random error. This will save time. 
 Remember, once is a coincidence, twice is a statistical 50/50, thrice is a surefire error.
 
-3. Database tutorial at chapter 7 is ambiguous when compared to earlier writing style.
+### 3. Database tutorial at chapter 7 is ambiguous when compared to earlier writing style.
 Make sure to follow and pay attention to the files being mentioned.
 if you fall into a pitfall like me, retrace your steps, the issue will resolve since you need to comment out specific lines. To nake things clearer:
 
@@ -52,7 +56,7 @@ fix:
 - Retrace steps, make sure the files are synced with the one mentioned in the tutorial.
 - ctrl+z is your friend. Don't be shy to use it.
 
-4. On card data. Where I need to fetch a string of array. I fell into another pitfall of redundant const declaration.
+### 4. On card data. Where I need to fetch a string of array. I fell into another pitfall of redundant const declaration.
 
 problem: 
 Need to call specific values from a return.
@@ -141,16 +145,19 @@ Fixed the issue.
 
 Key takeaway. See the SQL return in the code and call the whole array instead of destructuring it. Each array is to be treated as 1 destucture.
 
-5. Major bug on customer display data.
+### 5. Major bug on customer display data.
 Problem:
 The app only displays one customer in Latest Invoices and Invoices page.
 The issue starts to become an actual issue once invoices page is integrated and I started to notice that it displays the same customer with the same date. Which is a major red flag.
+
+Here's the main problem for those of you that didn't get it: There are duplicates of the same invoice. For every customer. This is a problem.
 
 Debugging steps:
 - Checked local render logic.
 - Checked local placeholder database.
 - Checked local database fetching logic.
 - Cross checked with SQL console in Neon posgresql.
+- checked invoices table manually.
 - Noticed that there are duplicates in the 'invoices' table.
 - Identified duplicates with different id.
 
@@ -160,6 +167,8 @@ Fix:
 
 Probable cause:
 A mistake in seeding during earlier iteration. Likely caused with pre-fetching problem when running `/seed`.
+Upon further rumination, likely # Debug Log subheader 2 is the cause. 
+In the future, when seeding gives out weird behavior, check database tables *stat*.
 
 Key takeaway: 
 - Check database tables when fetch command behaves unexpectedly
