@@ -13,7 +13,15 @@ For more information, see the [course curriculum](https://nextjs.org/learn) on t
 
 ## Checking out the deployed SPA
 
-Use `/dashboard` to access the dashboard, I have yet to implement Auth at the moment.
+~~Use `/dashboard` to access the dashboard, I have yet to implement Auth at the moment.~~<br>
+Auth implemented as of 23/03/2025.
+Metadata added as of 26/03/2025.
+Completion in two weeks.
+
+## What next?
+
+Deploying this for historical purposes.<br>
+Will either clone it or modify it further later on.
 
 ## Repository structure
 
